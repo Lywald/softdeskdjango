@@ -57,10 +57,17 @@ poetry env activate
 
 4. Run migrations:
 ```bash
+
+poetry run python manage.py makemigrations users
 python manage.py migrate
 ```
 
-5. Start development server:
+5. Create superuser:
+```bash
+poetry run python manage.py createsuperuser 
+```
+
+6. Start development server:
 ```bash
 python manage.py runserver
 ```
@@ -68,3 +75,6 @@ python manage.py runserver
 ## Testing
 
 Test API endpoints using Postman, curl, or Django REST Framework's localhost server.
+
+localhost:8000/admin/
+localhost:8000/api
