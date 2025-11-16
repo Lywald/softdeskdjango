@@ -57,9 +57,9 @@ poetry env activate
 
 4. Run migrations:
 ```bash
-
 poetry run python manage.py makemigrations users
-python manage.py migrate
+poetry run python manage.py makemigrations projects
+poetry run python manage.py migrate
 ```
 
 5. Create superuser:
