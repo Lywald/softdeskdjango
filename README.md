@@ -69,7 +69,7 @@ poetry run python manage.py createsuperuser
 
 6. Start development server:
 ```bash
-python manage.py runserver
+poetry run python manage.py runserver
 ```
 
 ## API Testing
