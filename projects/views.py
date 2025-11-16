@@ -56,6 +56,18 @@ class IssueViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+    def get_queryset(self):
+        user = self.request.user
+        
+        if user.is_staff:
+            return Issue.objects.all()
+        
+        authored = Project.objects.filter(author=user)
+        contributed = Project.objects.filter(contributors__user=user)
+        user_issues = (authored | contributed).distinct()
+
+        return Issue.objects.filter(project__in=user_issues)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     """

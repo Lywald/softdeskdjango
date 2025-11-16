@@ -89,9 +89,6 @@ class IsIssueAuthorOrProjectContributorReadOnly(UserIsAuthenticated):
         if user == proj.author or proj.contributors.filter(user=user).exists():
             return True        
 
-        #if request.method in permissions.SAFE_METHODS:
-            #return True
-
         # Write: only issue author
         return obj.author == user        
     
