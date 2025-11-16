@@ -72,14 +72,57 @@ poetry run python manage.py createsuperuser
 python manage.py runserver
 ```
 
-## Testing
+## API Testing
 
-Test API endpoints using Postman, curl, or Django REST Framework's localhost server.
+### Prerequisites for Testing
 
-localhost:8000/admin/
-localhost:8000/api
+Before testing the API, make sure you have created a superuser (if not already done):
 
+```bash
+poetry run python manage.py createsuperuser
+# Example: username: admin, password: admin123
+```
 
+### Using Postman (Recommended)
+
+This project includes a comprehensive Postman collection for testing all API endpoints.
+
+**Collection File**: `Softdesk API - Projects, Contributors, Issues, Comments.postman_collection.json`
+
+#### Download Postman
+[Get Postman](https://www.postman.com/downloads/)
+
+#### Import the Collection
+1. Open Postman
+2. Click "Import" in the top left
+3. Select the file: `Softdesk API - Projects, Contributors, Issues, Comments.postman_collection.json`
+4. The collection will appear in your Collections sidebar
+
+#### What's Included
+- JWT authentication (token generation and refresh)
+- Projects CRUD operations
+- Contributors management
+- Issues tracking
+- Comments functionality
+- Permission-based access control tests
+
+### API Endpoints
+
+```
+Admin Panel:     http://localhost:8000/admin/
+API Root:        http://localhost:8000/api/
+JWT Token:       http://localhost:8000/api/token/
+Token Refresh:   http://localhost:8000/api/token/refresh/
+```
+
+### Getting Your JWT Token
+
+Use the credentials you created during superuser setup:
+
+```bash
 curl -X POST http://localhost:8000/api/token/ \
   -H "Content-Type: application/json" \
-  -d '{"username": "Pierrot", "password": "theboss0"}'
+  -d '{"username": "admin", "password": "admin123"}'
+```
+
+Replace `admin` and `admin123` with your actual superuser credentials.
