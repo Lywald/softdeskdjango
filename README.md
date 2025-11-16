@@ -78,3 +78,8 @@ Test API endpoints using Postman, curl, or Django REST Framework's localhost ser
 
 localhost:8000/admin/
 localhost:8000/api
+
+
+curl -X POST http://localhost:8000/api/token/ \
+  -H "Content-Type: application/json" \
+  -d '{"username": "Pierrot", "password": "theboss0"}'

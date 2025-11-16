@@ -1,0 +1,1332 @@
+{
+	"info": {
+		"_postman_id": "eb095f4b-b91c-4e32-a4d8-8a848f56a47f",
+		"name": "Softdesk API - Projects, Contributors, Issues, Comments",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "48577259",
+		"_collection_link": "https://yemethus-3889008.postman.co/workspace/Pierre-Zarebski's-Workspace~aec7a15c-4ba4-4890-812f-a8748fa82065/collection/48577259-eb095f4b-b91c-4e32-a4d8-8a848f56a47f?action=share&source=collection_link&creator=48577259"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "ListUsers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ListUsers - Test Script",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Each user has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(user) {",
+									"        pm.expect(user).to.have.property(\"id\");",
+									"        pm.expect(user).to.have.property(\"username\");",
+									"        pm.expect(user).to.have.property(\"email\");",
+									"        pm.expect(user).to.have.property(\"first_name\");",
+									"        pm.expect(user).to.have.property(\"last_name\");",
+									"        pm.expect(user).to.have.property(\"age\");",
+									"        pm.expect(user).to.have.property(\"can_be_contacted\");",
+									"        pm.expect(user).to.have.property(\"can_data_be_shared\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/user/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUser",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "CreateUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"username\": \"postman123\", \"password\": \"postmanpass\", \"email\": \"postman@gmail.com\", \"first_name\": \"Igor\", \"last_name\": \"Zarebski\", \"age\": 36, \"can_be_contacted\": true, \"can_data_be_shared\": false }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/user/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"user",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Test for 204 No Content status code (or appropriate)",
+									"pm.test(\"Status code is 204 or 200\", function () {",
+									"    pm.expect([204, 200]).to.include(pm.response.code);",
+									"});",
+									"",
+									"// Test for empty response body (for 204) or confirmation of deletion message",
+									"pm.test(\"Response confirms deletion\", function () {",
+									"    if (pm.response.code === 204) {",
+									"        pm.expect(pm.response.text()).to.be.oneOf([\"\", null]);",
+									"    } else {",
+									"        var body = pm.response.text();",
+									"        pm.expect(body.toLowerCase()).to.include(\"deleted\");",
+									"    }",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for successful status code (200 or 204)",
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"",
+									"// Only run further tests if response has a body (204 has no content)",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    // Validate presence and type of updated fields",
+									"    pm.test(\"Response has 'id' as a number\", function () {",
+									"        pm.expect(jsonData).to.have.property(\"id\");",
+									"        pm.expect(jsonData.id).to.be.a(\"number\");",
+									"    });",
+									"    pm.test(\"Response has 'title' as a string\", function () {",
+									"        pm.expect(jsonData).to.have.property(\"title\");",
+									"        pm.expect(jsonData.title).to.be.a(\"string\");",
+									"    });",
+									"    ",
+									"    // Validate response structure (example: id, title, description, created_at, updated_at, project, author, assignee, tag, priority, status)",
+									"    pm.test(\"Response structure matches expectations\", function () {",
+									"        pm.expect(jsonData).to.have.all.keys(\"id\", \"title\", \"description\", \"created_at\", \"updated_at\", \"project\", \"author\", \"assignee\", \"tag\", \"priority\", \"status\");",
+									"        pm.expect(jsonData.created_at).to.be.a(\"string\");",
+									"        pm.expect(jsonData.updated_at).to.be.a(\"string\");",
+									"        pm.expect(jsonData.project).to.be.a(\"number\");",
+									"        pm.expect(jsonData.author).to.be.a(\"number\");",
+									"        pm.expect(jsonData.assignee).to.be.a(\"number\");",
+									"        pm.expect(jsonData.tag).to.be.a(\"string\");",
+									"        pm.expect(jsonData.priority).to.be.a(\"string\");",
+									"        pm.expect(jsonData.status).to.be.a(\"string\");",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\":\"Igor\"}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/user/{{user_id_to_update}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"{{user_id_to_update}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Project",
+			"item": [
+				{
+					"name": "ListProjects",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Vérifie que le code de statut est 200\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"// Vérifie que la réponse est un tableau\r",
+									"pm.test(\"Response is an array\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(Array.isArray(json)).to.be.true;\r",
+									"});\r",
+									"\r",
+									"// Si le tableau n'est pas vide, vérifie la structure de chaque projet\r",
+									"pm.test(\"Each project has expected fields\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    if (Array.isArray(json) && json.length > 0) {\r",
+									"        json.forEach(function(project) {\r",
+									"            pm.expect(project).to.have.property(\"id\");\r",
+									"            pm.expect(project).to.have.property(\"name\");\r",
+									"            pm.expect(project).to.have.property(\"description\");\r",
+									"            pm.expect(project).to.have.property(\"type\");\r",
+									"            pm.expect(project).to.have.property(\"author\");\r",
+									"            pm.expect(project).to.have.property(\"created_time\");\r",
+									"        });\r",
+									"    }\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/projects/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"projects",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetProject",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has expected fields\", function () {\r",
+									"    const json = pm.response.json();\r",
+									"    pm.expect(json).to.have.property(\"id\");\r",
+									"    pm.expect(json).to.have.property(\"name\");\r",
+									"    pm.expect(json).to.have.property(\"description\");\r",
+									"    pm.expect(json).to.have.property(\"type\");\r",
+									"    pm.expect(json).to.have.property(\"author\");\r",
+									"    pm.expect(json).to.have.property(\"created_time\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/projects/{{project_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"projects",
+								"{{project_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateProject",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Statut attendu 201 Created\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"// 2) Corps JSON avec champs attendus\r",
+									"const json = pm.response.json();\r",
+									"pm.test(\"Response has expected fields\", function () {\r",
+									"    pm.expect(json).to.be.an(\"object\");\r",
+									"    pm.expect(json).to.have.property(\"id\");\r",
+									"    pm.expect(json).to.have.property(\"name\");\r",
+									"    pm.expect(json).to.have.property(\"description\");\r",
+									"    pm.expect(json).to.have.property(\"type\");\r",
+									"    pm.expect(json).to.have.property(\"author\");\r",
+									"    pm.expect(json).to.have.property(\"created_time\");\r",
+									"});\r",
+									"\r",
+									"// 3) Sauvegarder l'ID dans l'environnement pour la suppression\r",
+									"if (json && json.id) {\r",
+									"    pm.environment.set(\"project_id\", json.id.toString());\r",
+									"    pm.test(\"Saved project_id to environment\", function () {\r",
+									"        pm.expect(pm.environment.get(\"project_id\")).to.eql(json.id.toString());\r",
+									"    });\r",
+									"} else {\r",
+									"    pm.test(\"project_id not found in response\", function () {\r",
+									"        pm.expect.fail(\"No id field in create response\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// 4) (Optionnel) Valider l'echo des données envoyées\r",
+									"if (pm.request.body && pm.request.body.mode === \"raw\") {\r",
+									"    try {\r",
+									"        const sent = JSON.parse(pm.request.body.raw || \"{}\");\r",
+									"        pm.test(\"Name echoed (if API echoes input)\", function () {\r",
+									"            if (sent.name) pm.expect(json.name).to.eql(sent.name);\r",
+									"        });\r",
+									"        pm.test(\"Type is valid choice\", function () {\r",
+									"            const valid = [\"back-end\", \"front-end\", \"iOS\", \"Android\"];\r",
+									"            pm.expect(valid).to.include(json.type);\r",
+									"        });\r",
+									"    } catch (e) {\r",
+									"        // ignore parse issues\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Projet Alternance\",\n  \"description\": \"Au top de ce qui se fait\",\n  \"type\": \"Android\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/projects/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"projects",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteProject",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Vérifier qu'on a bien un project_id\r",
+									"pm.test(\"project_id is set in environment\", function () {\r",
+									"    const id = pm.environment.get(\"project_id\");\r",
+									"    pm.expect(id, \"project_id missing - run CreateProject first\").to.be.ok;\r",
+									"});\r",
+									"\r",
+									"// 2) Statut attendu: 204 No Content (ou 200/202 selon ton API)\r",
+									"pm.test(\"Delete returns expected status\", function () {\r",
+									"    pm.expect([200, 202, 204]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) (Optionnel) Si 200, valider le JSON de confirmation\r",
+									"if (pm.response.code === 200) {\r",
+									"    pm.test(\"Delete confirmation JSON (optional)\", function () {\r",
+									"        const body = pm.response.json();\r",
+									"        pm.expect(body).to.be.an(\"object\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// 4) (Optionnel) Vérifier que le GET sur ce projet renvoie 404\r",
+									"//    Nécessite une requête supplémentaire avec pm.sendRequest\r",
+									"const baseURL = pm.environment.get(\"baseURL\");\r",
+									"const id = pm.environment.get(\"project_id\");\r",
+									"if (baseURL && id) {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${baseURL}/api/projects/${id}/`,\r",
+									"        method: \"GET\",\r",
+									"        header: { Accept: \"application/json\" }\r",
+									"    }, function (err, res) {\r",
+									"        pm.test(\"GET after delete should be 404\", function () {\r",
+									"            pm.expect(err).to.be.null;\r",
+									"            pm.expect(res).to.have.property(\"code\");\r",
+									"            pm.expect([404, 410]).to.include(res.code);\r",
+									"        });\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// 5) Nettoyage: vider la variable d'environnement (optionnel)\r",
+									"pm.environment.unset(\"project_id\");"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/projects/{{project_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"projects",
+								"{{project_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Contributor",
+			"item": [
+				{
+					"name": "ListContributors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// ListComments - Tests for status code, response structure, and required fields",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Each comment has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(comment) {",
+									"        pm.expect(comment).to.have.property(\"id\");",
+									"        pm.expect(comment).to.have.property(\"description\");",
+									"        pm.expect(comment).to.have.property(\"author\");",
+									"        pm.expect(comment).to.have.property(\"issue\");",
+									"        pm.expect(comment).to.have.property(\"created_time\");",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Description is a string\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(comment) {",
+									"        pm.expect(comment.description).to.be.a(\"string\");",
+									"    });",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/contributors/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contributors",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetContributor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// GetComment - Tests for status code, response structure, and required fields",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"});",
+									"",
+									"pm.test(\"Comment has required fields\", function () {",
+									"    var comment = pm.response.json();",
+									"    pm.expect(comment).to.have.property(\"id\");",
+									"    pm.expect(comment).to.have.property(\"description\");",
+									"    pm.expect(comment).to.have.property(\"author\");",
+									"    pm.expect(comment).to.have.property(\"issue\");",
+									"    pm.expect(comment).to.have.property(\"created_time\");",
+									"});",
+									"",
+									"pm.test(\"Description is a string\", function () {",
+									"    var comment = pm.response.json();",
+									"    pm.expect(comment.description).to.be.a(\"string\");",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/contributors/{{contributor_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contributors",
+								"{{contributor_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateContributor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) 201 Created\r",
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"if (pm.response.code === 400) {\r",
+									"    pm.test(\"Returns unique constraint error for duplicate contributor\", function () {\r",
+									"        const json = pm.response.json();\r",
+									"        pm.expect(json).to.have.property(\"non_field_errors\");\r",
+									"        pm.expect(json.non_field_errors[0]).to.match(/must make a unique set/);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"const json = pm.response.json();\r",
+									"\r",
+									"// 2) Champs attendus\r",
+									"pm.test(\"Response has expected fields\", function () {\r",
+									"    pm.expect(json).to.be.an(\"object\");\r",
+									"    if (json.id !== undefined) pm.expect(json).to.have.property(\"id\");\r",
+									"    pm.expect(json).to.have.property(\"user\");\r",
+									"    pm.expect(json).to.have.property(\"project\");\r",
+									"    pm.expect(json).to.have.property(\"created_time\");\r",
+									"});\r",
+									"\r",
+									"// 3) Sauvegarder contributor_id pour Delete\r",
+									"const newId = json.id ?? json.pk ?? json.uuid; // fallback si votre API nomme différemment\r",
+									"if (newId !== undefined && newId !== null) {\r",
+									"    pm.environment.set(\"contributor_id\", String(newId));\r",
+									"    pm.test(\"Saved contributor_id to environment\", function () {\r",
+									"        pm.expect(pm.environment.get(\"contributor_id\")).to.eql(String(newId));\r",
+									"    });\r",
+									"} else {\r",
+									"    pm.test(\"contributor_id not found in response\", function () {\r",
+									"        pm.expect.fail(\"No id-like field in create response\");\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// 4) (Optionnel) Valider l’écho des données envoyées\r",
+									"try {\r",
+									"    if (pm.request.body?.mode === \"raw\") {\r",
+									"        const sent = JSON.parse(pm.request.body.raw || \"{}\");\r",
+									"        if (sent.user !== undefined) {\r",
+									"            pm.test(\"Echo user (if API echoes)\", function () {\r",
+									"                pm.expect(String(json.user)).to.eql(String(sent.user));\r",
+									"            });\r",
+									"        }\r",
+									"        if (sent.project !== undefined) {\r",
+									"            pm.test(\"Echo project (if API echoes)\", function () {\r",
+									"                pm.expect(String(json.project)).to.eql(String(sent.project));\r",
+									"            });\r",
+									"        }\r",
+									"    }\r",
+									"} catch (e) { /* ignore */ }"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": \"2\",\n  \"project\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/contributors/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contributors",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteContributor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 1) Vérifier la présence de contributor_id\r",
+									"pm.test(\"contributor_id is set in environment\", function () {\r",
+									"    const id = pm.environment.get(\"contributor_id\");\r",
+									"    pm.expect(id, \"contributor_id missing - run Create Contributor first\").to.be.ok;\r",
+									"});\r",
+									"\r",
+									"// 2) Statut attendu\r",
+									"pm.test(\"Delete returns expected status\", function () {\r",
+									"    pm.expect([200, 202, 204]).to.include(pm.response.code);\r",
+									"});\r",
+									"\r",
+									"// 3) (Optionnel) Vérifier qu’un GET renvoie 404/410\r",
+									"const baseURL = pm.environment.get(\"baseURL\");\r",
+									"const cid = pm.environment.get(\"contributor_id\");\r",
+									"if (baseURL && cid) {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${baseURL}/api/contributors/${cid}/`,\r",
+									"        method: \"GET\",\r",
+									"        header: { Accept: \"application/json\" }\r",
+									"    }, function (err, res) {\r",
+									"        pm.test(\"GET after delete should be 404/410\", function () {\r",
+									"            pm.expect(err).to.be.null;\r",
+									"            pm.expect([404, 410]).to.include(res.code);\r",
+									"        });\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"// 4) Nettoyage (optionnel)\r",
+									"pm.environment.unset(\"contributor_id\");"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/contributors/{{contributor_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"contributors",
+								"{{contributor_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Issue",
+			"item": [
+				{
+					"name": "ListIssues",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// ListIssues - Tests for status code, response structure, and required fields",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response is an array\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(Array.isArray(jsonData)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Each issue has required fields\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(issue) {",
+									"        pm.expect(issue).to.have.property(\"id\");",
+									"        pm.expect(issue).to.have.property(\"name\");",
+									"        pm.expect(issue).to.have.property(\"description\");",
+									"        pm.expect(issue).to.have.property(\"priority\");",
+									"        pm.expect(issue).to.have.property(\"tag\");",
+									"        pm.expect(issue).to.have.property(\"status\");",
+									"        pm.expect(issue).to.have.property(\"project\");",
+									"        pm.expect(issue).to.have.property(\"author\");",
+									"        pm.expect(issue).to.have.property(\"created_time\");",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Priority is one of allowed values\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var allowed = [\"LOW\", \"MEDIUM\", \"HIGH\"];",
+									"    jsonData.forEach(function(issue) {",
+									"        pm.expect(allowed).to.include(issue.priority);",
+									"    });",
+									"});",
+									"",
+									"pm.test(\"Tag is present and is a string\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    jsonData.forEach(function(issue) {",
+									"        pm.expect(issue.tag).to.be.a(\"string\");",
+									"    });",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/issues/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"issues",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetIssue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for 200 or 204 status code",
+									"pm.test(\"Status code is 200 or 204\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+									"});",
+									"",
+									"// Only validate response body if not empty (204 may have no content)",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.test(\"Response contains updated fields with correct types\", function () {",
+									"        pm.expect(jsonData).to.have.property(\"title\");",
+									"        pm.expect(jsonData.title).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"description\");",
+									"        pm.expect(jsonData.description).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"tag\");",
+									"        pm.expect(jsonData.tag).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"priority\");",
+									"        pm.expect(jsonData.priority).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"status\");",
+									"        pm.expect(jsonData.status).to.be.a(\"string\");",
+									"    });",
+									"",
+									"    pm.test(\"Response structure matches expected Issue entity\", function () {",
+									"        pm.expect(jsonData).to.have.property(\"id\");",
+									"        pm.expect(jsonData.id).to.be.a(\"number\");",
+									"        pm.expect(jsonData).to.have.property(\"title\");",
+									"        pm.expect(jsonData.title).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"description\");",
+									"        pm.expect(jsonData.description).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"tag\");",
+									"        pm.expect(jsonData.tag).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"priority\");",
+									"        pm.expect(jsonData.priority).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"status\");",
+									"        pm.expect(jsonData.status).to.be.a(\"string\");",
+									"        pm.expect(jsonData).to.have.property(\"project\");",
+									"        pm.expect(jsonData.project).to.be.a(\"number\");",
+									"        pm.expect(jsonData).to.have.property(\"author\");",
+									"        pm.expect(jsonData.author).to.be.a(\"number\");",
+									"        pm.expect(jsonData).to.have.property(\"assignee\");",
+									"        pm.expect(jsonData.assignee).to.be.a(\"number\");",
+									"        pm.expect(jsonData).to.have.property(\"created_at\");",
+									"        pm.expect(jsonData.created_at).to.be.a(\"string\");",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/issues/{{issue_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"issues",
+								"{{issue_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateIssue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// CreateIssue - Tests for status code, response structure, and required fields",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response is an object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"});",
+									"",
+									"pm.test(\"Created issue has required fields\", function () {",
+									"    var issue = pm.response.json();",
+									"    pm.expect(issue).to.have.property(\"id\");",
+									"    pm.expect(issue).to.have.property(\"name\");",
+									"    pm.expect(issue).to.have.property(\"description\");",
+									"    pm.expect(issue).to.have.property(\"priority\");",
+									"    pm.expect(issue).to.have.property(\"tag\");",
+									"    pm.expect(issue).to.have.property(\"status\");",
+									"    pm.expect(issue).to.have.property(\"project\");",
+									"    pm.expect(issue).to.have.property(\"author\");",
+									"    pm.expect(issue).to.have.property(\"created_time\");",
+									"});",
+									"",
+									"pm.test(\"Priority is one of allowed values\", function () {",
+									"    var issue = pm.response.json();",
+									"    var allowed = [\"LOW\", \"MEDIUM\", \"HIGH\"];",
+									"    pm.expect(allowed).to.include(issue.priority);",
+									"});",
+									"",
+									"pm.test(\"Tag is present and is a string\", function () {",
+									"    var issue = pm.response.json();",
+									"    pm.expect(issue.tag).to.be.a(\"string\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Prob 2 avec alternance\",\n  \"description\": \"Il y a une issue\",\n  \"tag\": \"BUG\",\n  \"priority\": \"MEDIUM\",\n  \"status\": \"In Progress\",\n  \"project\": \"1\",\n  \"assignee_user\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/issues/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"issues",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteIssue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// DeleteComment - Tests for status code and response",
+									"pm.test(\"Status code is 204\", function () {",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"pm.test(\"Response body is empty\", function () {",
+									"    pm.expect(pm.response.text()).to.eql(\"\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/issues/{{issue_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"issues",
+								"{{issue_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "ListComments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/comments/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetComment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/comments/{{comment_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"{{comment_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateComment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// CreateComment - Tests for status code, response structure, and required fields",
+									"pm.test(\"Status code is 201\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Response is an object\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"});",
+									"",
+									"pm.test(\"Created comment has required fields\", function () {",
+									"    var comment = pm.response.json();",
+									"    pm.expect(comment).to.have.property(\"id\");",
+									"    pm.expect(comment).to.have.property(\"description\");",
+									"    pm.expect(comment).to.have.property(\"author\");",
+									"    pm.expect(comment).to.have.property(\"issue\");",
+									"    pm.expect(comment).to.have.property(\"created_time\");",
+									"});",
+									"",
+									"pm.test(\"Description is a string\", function () {",
+									"    var comment = pm.response.json();",
+									"    pm.expect(comment.description).to.be.a(\"string\");",
+									"});",
+									""
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"Juste un petit comm\",\n  \"author_user\": \"1\",\n  \"issue\": \"1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseURL}}/api/comments/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteComment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Test for successful deletion (204 No Content or 200 OK)",
+									"pm.test(\"Status code is 204 (No Content) or 200 (OK)\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([204, 200]);",
+									"});",
+									"",
+									"// If 204, response body should be empty",
+									"if (pm.response.code === 204) {",
+									"    pm.test(\"Response body is empty for 204 No Content\", function () {",
+									"        pm.expect(pm.response.text()).to.eql(\"\");",
+									"    });",
+									"}",
+									"",
+									"// If 200, validate response structure (customize as needed)",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response body is valid JSON for 200 OK\", function () {",
+									"        let isJson = true;",
+									"        try {",
+									"            JSON.parse(pm.response.text());",
+									"        } catch (e) {",
+									"            isJson = false;",
+									"        }",
+									"        pm.expect(isJson).to.be.true;",
+									"    });",
+									"    // Optionally, add more structure checks here if your API returns a specific object",
+									"}",
+									"",
+									"// Clear test result for deletion",
+									"pm.test(\"Comment deletion reported as successful\", function () {",
+									"    pm.expect([204, 200]).to.include(pm.response.code);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseURL}}/api/comments/{{comment_id}}/",
+							"host": [
+								"{{baseURL}}"
+							],
+							"path": [
+								"api",
+								"comments",
+								"{{comment_id}}",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYzMzA5NjIxLCJpYXQiOjE3NjMzMDYwMjEsImp0aSI6IjgxOWMxNjEwN2E2NTRiNTJhMTk0ZDJkOGJlMDA0M2M2IiwidXNlcl9pZCI6IjE3In0.l9S6Q0mg-9a0-Jig8zA45wfKRbFqfA0voxX_RCJZp_M",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
