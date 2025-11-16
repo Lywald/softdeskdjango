@@ -62,62 +62,37 @@ class IsProjectAuthor(UserIsAuthenticated):
         return obj.project.author == request.user
         
 
-class IsIssueAuthorOrProjectContributorReadOnly(UserIsAuthenticated):
+class IsAuthorOrProjectContributorReadOnly(UserIsAuthenticated):
     """
-    Permission for Issues:
+    Permission for Issues and Comments:
     - Visible to project author and all contributors (READ)
-    - Modifiable/Deletable only by issue author (WRITE)
-    
-    Spec: "Un problème ne peut être actualisé ou supprimé que par son auteur,
-    mais il doit rester visible par tous les contributeurs au projet."
+    - Modifiable/Deletable only by object author (WRITE)
     """
-        
+
     def has_object_permission(self, request, view, obj):
-        """
-        Check issue access permissions:
-        - Must be project member (author or contributor) to view
-        - Only issue author can modify/delete
-        """
-        proj = obj.project
         user = request.user
-        
+
         # Staff bypass all permissions
         staff_check = super().has_object_permission(request, view, obj)
         if staff_check is True:
             return True
-        
-        if user == proj.author or proj.contributors.filter(user=user).exists():
-            return True        
 
-        # Write: only issue author
-        return obj.author == user        
-    
+        # Determine the project (works for both Issue and Comment)
+        if hasattr(obj, 'project'):
+            project = obj.project
+        elif hasattr(obj, 'issue'):
+            project = obj.issue.project
+        else:
+            return False
 
-class IsCommentAuthorOrProjectContributorReadOnly(UserIsAuthenticated):
-    """
-    Permission for Comments:
-    - Visible to project author and all contributors (READ)
-    - Modifiable/Deletable only by comment author (WRITE)
-    
-    Spec: "Les commentaires doivent être visibles par tous les contributeurs au projet
-    et par le responsable du projet, mais seul leur auteur peut les actualiser ou les supprimer."
-    """
+        # User must be project member (author or contributor)
+        is_project_member = user == project.author or project.contributors.filter(user=user).exists()
+        if not is_project_member:
+            return False
 
-    def has_object_permission(self, request, view, obj):
-        """
-        Check comment access permissions:
-        - Must be project member (author or contributor) to view
-        - Only comment author can modify/delete
-        """
-        user = request.user
-        project = obj.issue.project
-
-        # Staff bypass all permissions
-        staff_check = super.has_object_permission(request, view, obj)
-        if staff_check is True:
+        # Read: all project members
+        if request.method in permissions.SAFE_METHODS:
             return True
 
-        if user == project.author or project.contributors.filter(user=user).exists():
-            return True
-        
-        return False
+        # Write: only object author
+        return obj.author == user
