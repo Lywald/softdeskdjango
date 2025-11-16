@@ -126,3 +126,22 @@ curl -X POST http://localhost:8000/api/token/ \
 ```
 
 Replace `admin` and `admin123` with your actual superuser credentials.
+
+This request will return a JSON response with an `access` token and a `refresh` token:
+```json
+{
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+#### Configure Postman with Your Token
+
+1. Copy the `access` token from the response
+2. In Postman, go to your collection settings:
+   - Right-click the "Softdesk API" collection
+   - Select "Edit"
+   - Go to the "Authorization" tab
+   - Type: Select "Bearer Token"
+   - Token: Paste your `access` token
+3. All requests in the collection will now use this token automatically
