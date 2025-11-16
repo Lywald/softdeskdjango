@@ -72,6 +72,49 @@ poetry run python manage.py createsuperuser
 poetry run python manage.py runserver
 ```
 
+## Security Configuration
+
+### SECRET_KEY - Important Notice
+
+**WARNING**: This repository contains a development SECRET_KEY in `softdesksupport/settings.py`. This is ONLY safe for development and learning purposes.
+
+**For Production Deployment**, you MUST:
+
+1. **Generate a new SECRET_KEY**:
+   ```bash
+   python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+   ```
+
+2. **Create a `.env` file** in the project root:
+   ```bash
+   SECRET_KEY=your-new-generated-secret-key-here
+   DEBUG=False
+   ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+   ```
+
+3. **Install python-decouple**:
+   ```bash
+   poetry add python-decouple
+   ```
+
+4. **Update `settings.py`** to use environment variables:
+   ```python
+   from decouple import config
+
+   SECRET_KEY = config('SECRET_KEY')
+   DEBUG = config('DEBUG', default=False, cast=bool)
+   ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+   ```
+
+5. **Add `.env` to `.gitignore`** (already done in this project)
+
+### Why This Matters
+
+- The SECRET_KEY is used to sign JWT tokens and session data
+- If exposed, attackers could forge authentication tokens
+- The current key is prefixed with "django-insecure-" indicating it's for development only
+- Never commit production secrets to version control
+
 ## API Testing
 
 ### Prerequisites for Testing
