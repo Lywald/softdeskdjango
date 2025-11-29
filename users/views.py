@@ -34,4 +34,5 @@ class UserViewset(ModelViewSet):
 
     def get_queryset(self):
         """Return the base queryset of all users."""
-        return User.objects.all()
+        #return User.objects.all()
+        return User.objects.filter(id=self.request.user.id)
