@@ -82,7 +82,7 @@ class ProjectPermission(permissions.BasePermission):
         if request.user.is_staff:
             return True
         
-        # We can read (we added IsAuthenticated in the view)
+        # We can read (we added IsAuthenticated permission in the view)
         if request.method in permissions.SAFE_METHODS:
             return None
         
@@ -115,9 +115,9 @@ class CommentPermission(permissions.BasePermission):
         return False
     
     def has_object_permission(self, request, view, obj):
-        # l'auteur du commentaire peut tout faire
-        # les membres du projet peuvent lire les commentaires
-        # les autres ne peuvent ni lire ni écrire
+        # comment author can do everything
+        # comment's project members can read
+        # others can not read nor write
         if request.user == obj.author:
             return True
         
@@ -140,11 +140,16 @@ class IssuePermission(permissions.BasePermission):
             return None
         
         if request.method == "POST":
+            # Allow Issue creation for every authenticated user
             return True
 
-        return False
+        # Allow Issue PUT/DELETE 
+        return True
     
     def has_object_permission(self, request, view, obj):
+        # issue author can do everything
+        # issue's project members can read 
+        # others can not read nor write
         if request.user == obj.author:
             return True
         
@@ -153,37 +158,4 @@ class IssuePermission(permissions.BasePermission):
             return request.method in permissions.SAFE_METHODS
         
         return False
-
-
-""" 
-class AuthorOrAdminCanCRUD(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if (request.user == obj.author) or (request.user.is_staff):
-            return True
-        return False
-
-
-class IssueOrCommentContributersOrCanRead(AuthorOrAdminCanCRUD):
-    def has_object_permission(self, request, view, obj):
-        isAuthorOrStaff = super().has_object_permission(request, view, obj)
-        if isAuthorOrStaff == True:
-            return True
-        
-        if hasattr(obj, 'project'):
-            proj = obj.project
-        elif hasattr(obj, 'issue'):
-            proj = obj.issue.project
-        else:
-            return False
-        
-        # check if contributor
-        is_project_member = request.user == proj.author or proj.contributors.filter(user=request.user).exists()
-
-        if is_project_member == True:
-            return True
-        
-        return False
-
-class ContributorOrStaffPermission(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        return (request.user == obj.user) or (request.user.is_staff) """
+    
