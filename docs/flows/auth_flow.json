@@ -1,0 +1,94 @@
+{
+  "info": {
+    "name": "SoftDesk Auth Flow",
+    "description": "Authentication flow: Get JWT token and test protected endpoints",
+    "schema": "https://schema.postman.io/collection/draft-07/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Get JWT Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"PierreAdmin\",\n  \"password\": \"Theboss0\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/token/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "token", ""]
+        }
+      }
+    },
+    {
+      "name": "2. List Projects (Authenticated)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/projects/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", ""]
+        }
+      }
+    },
+    {
+      "name": "3. List Projects (No Auth - Expect 401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/projects/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", ""]
+        }
+      }
+    },
+    {
+      "name": "4. Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/token/refresh/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "token", "refresh", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1MjE0MjE5LCJpYXQiOjE3NjUyMTA2MTksImp0aSI6IjBlYWY2ZGFhYzU4NDQxY2M5ZTFjN2NmMGI0OGQ1MDJlIiwidXNlcl9pZCI6IjQifQ.U6LZ5n-jMCxpNvJ2up9SvIPLnDyJ5hI0M_5PS5_Xe6E"
+    },
+    {
+      "key": "refresh_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NTgxNTQxOSwiaWF0IjoxNzY1MjEwNjE5LCJqdGkiOiI3MjQ2ODkwOGRiOGE0ZTdjOWM3ODcyMTY1NWQxZWJmZSIsInVzZXJfaWQiOiI0In0.eSVeHHDQtCRBEuYZUr7IlMgL_AqbO1jO64u1RL7FWJ0"
+    }
+  ]
+}

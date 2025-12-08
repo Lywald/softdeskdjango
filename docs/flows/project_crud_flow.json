@@ -1,0 +1,153 @@
+{
+  "info": {
+    "name": "SoftDesk Project CRUD Flow",
+    "description": "Test Project Create, Read, Update, Delete operations with permission checks",
+    "schema": "https://schema.postman.io/collection/draft-07/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Project (Author)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Project\",\n  \"description\": \"A test project created via Postman Flow\",\n  \"type\": \"back-end\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/projects/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", ""]
+        }
+      }
+    },
+    {
+      "name": "2. List All Projects",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/projects/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Read Single Project",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/projects/{{project_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", "{{project_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "4. Update Project (Author Only)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Project Name\",\n  \"description\": \"Updated description\",\n  \"type\": \"front-end\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/projects/{{project_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", "{{project_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "5. Update Project (Contributor - Expect 403)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{contributor_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Should Fail\",\n  \"description\": \"This should return 403\",\n  \"type\": \"back-end\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/projects/{{project_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", "{{project_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "6. Delete Project (Author Only)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/projects/{{project_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "projects", "{{project_id}}", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1MjE0MjE5LCJpYXQiOjE3NjUyMTA2MTksImp0aSI6IjBlYWY2ZGFhYzU4NDQxY2M5ZTFjN2NmMGI0OGQ1MDJlIiwidXNlcl9pZCI6IjQifQ.U6LZ5n-jMCxpNvJ2up9SvIPLnDyJ5hI0M_5PS5_Xe6E"
+    },
+    {
+      "key": "contributor_token",
+      "value": "PLACEHOLDER_CONTRIBUTOR_TOKEN"
+    },
+    {
+      "key": "project_id",
+      "value": "1"
+    }
+  ]
+}

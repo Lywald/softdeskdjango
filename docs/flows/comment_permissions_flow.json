@@ -1,0 +1,178 @@
+{
+  "info": {
+    "name": "SoftDesk Comment Permissions Flow",
+    "description": "Test Comment CRUD - only author can update/delete their comments",
+    "schema": "https://schema.postman.io/collection/draft-07/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Comment on Issue",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"This is a comment on the issue\",\n  \"issue\": {{issue_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/comments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", ""]
+        }
+      }
+    },
+    {
+      "name": "2. List Comments",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/comments/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Read Single Comment",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/comments/{{comment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", "{{comment_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "4. Update Own Comment (Author - OK)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{comment_author_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Updated comment content\",\n  \"issue\": {{issue_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/comments/{{comment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", "{{comment_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "5. Update Other's Comment (Contributor - Expect 403)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{other_contributor_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Should fail - not my comment\",\n  \"issue\": {{issue_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/comments/{{comment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", "{{comment_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "6. Delete Own Comment (Author Only)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{comment_author_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/comments/{{comment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", "{{comment_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "7. Delete Other's Comment (Expect 403)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{other_contributor_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/comments/{{comment_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "comments", "{{comment_id}}", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1MjE0MjE5LCJpYXQiOjE3NjUyMTA2MTksImp0aSI6IjBlYWY2ZGFhYzU4NDQxY2M5ZTFjN2NmMGI0OGQ1MDJlIiwidXNlcl9pZCI6IjQifQ.U6LZ5n-jMCxpNvJ2up9SvIPLnDyJ5hI0M_5PS5_Xe6E"
+    },
+    {
+      "key": "comment_author_token",
+      "value": "PLACEHOLDER_COMMENT_AUTHOR_TOKEN"
+    },
+    {
+      "key": "other_contributor_token",
+      "value": "PLACEHOLDER_OTHER_CONTRIBUTOR_TOKEN"
+    },
+    {
+      "key": "issue_id",
+      "value": "1"
+    },
+    {
+      "key": "comment_id",
+      "value": "1"
+    }
+  ]
+}

@@ -1,0 +1,1279 @@
+{
+	"info": {
+		"_postman_id": "softdesk-full-suite-001",
+		"name": "SoftDesk Full Testing Suite",
+		"description": "Complete API test suite for SoftDesk Support application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "01_Auth",
+			"item": [
+				{
+					"name": "01_Login_Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('access_token', jsonData.access);",
+									"pm.collectionVariables.set('refresh_token', jsonData.refresh);",
+									"",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has access token', () => pm.expect(jsonData).to.have.property('access'));",
+									"pm.test('Has refresh token', () => pm.expect(jsonData).to.have.property('refresh'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"PierreAdmin\",\n    \"password\": \"Theboss0-\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/token/", "host": ["{{base_url}}"], "path": ["api", "token", ""]}
+					}
+				},
+				{
+					"name": "02_Login_Invalid_Password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"PierreAdmin\",\n    \"password\": \"wrongpassword\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/token/", "host": ["{{base_url}}"], "path": ["api", "token", ""]}
+					}
+				},
+				{
+					"name": "03_Login_Invalid_User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"nonexistent\",\n    \"password\": \"whatever\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/token/", "host": ["{{base_url}}"], "path": ["api", "token", ""]}
+					}
+				},
+				{
+					"name": "04_Refresh_Token_Valid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('access_token', jsonData.access);",
+									"",
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has new access token', () => pm.expect(jsonData).to.have.property('access'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/token/refresh/", "host": ["{{base_url}}"], "path": ["api", "token", "refresh", ""]}
+					}
+				},
+				{
+					"name": "05_Refresh_Token_Invalid",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"invalid_token_here\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/token/refresh/", "host": ["{{base_url}}"], "path": ["api", "token", "refresh", ""]}
+					}
+				}
+			]
+		},
+		{
+			"name": "02_User",
+			"item": [
+				{
+					"name": "01_List_Users_NoAuth_401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {"raw": "{{base_url}}/api/user/", "host": ["{{base_url}}"], "path": ["api", "user", ""]}
+					}
+				},
+				{
+					"name": "02_List_Users_Auth_ReturnsSelfOnly",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns paginated response with 1 user (self)', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"    pm.expect(jsonData.results.length).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/user/", "host": ["{{base_url}}"], "path": ["api", "user", ""]}
+					}
+				},
+				{
+					"name": "03_Get_User_ById_Self",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has username', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('username');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/user/{{current_user_id}}/", "host": ["{{base_url}}"], "path": ["api", "user", "{{current_user_id}}", ""]}
+					}
+				},
+				{
+					"name": "04_Get_User_ById_Other_404",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 404 (filtered by queryset)', () => pm.response.to.have.status(404));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/user/1/", "host": ["{{base_url}}"], "path": ["api", "user", "1", ""]}
+					}
+				}
+			]
+		},
+		{
+			"name": "03_Project",
+			"item": [
+				{
+					"name": "01_List_Projects_NoAuth_401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "02_List_Projects_Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns paginated response', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "03_Create_Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('project_id', jsonData.id);",
+									"pm.environment.set('project_id', jsonData.id);",
+									"console.log('Created project_id:', jsonData.id);",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Has id', () => pm.expect(jsonData).to.have.property('id'));",
+									"pm.test('Name matches', () => pm.expect(jsonData.name).to.eql('Test Project'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Project\",\n    \"description\": \"A test project for API testing\",\n    \"type\": \"back-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "04_Get_Project_ById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has correct id', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get('project_id')));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				},
+				{
+					"name": "05_Update_Project_Author_200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Name updated', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.name).to.eql('Updated Project Name');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Updated Project Name\",\n    \"description\": \"Updated description\",\n    \"type\": \"front-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				},
+				{
+					"name": "06_Update_Project_Contributor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{contributor_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Should Fail\",\n    \"description\": \"Contributor cannot update\",\n    \"type\": \"back-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				},
+				{
+					"name": "07_Patch_Project_Author_200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Description patched', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.description).to.eql('Patched description only');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Patched description only\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				},
+				{
+					"name": "08_Delete_Project_Contributor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{contributor_token}}"}],
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				},
+				{
+					"name": "09_Delete_Project_Author_204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/projects/{{project_id}}/", "host": ["{{base_url}}"], "path": ["api", "projects", "{{project_id}}", ""]}
+					}
+				}
+			]
+		},
+		{
+			"name": "04_Contributor",
+			"item": [
+				{
+					"name": "00_Setup_Create_Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('project_id', jsonData.id);",
+									"pm.environment.set('project_id', jsonData.id);",
+									"console.log('Setup project_id:', jsonData.id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Project for Contributor Tests\",\n    \"description\": \"Testing contributor management\",\n    \"type\": \"back-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "01_List_Contributors_NoAuth_401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {"raw": "{{base_url}}/api/contributors/", "host": ["{{base_url}}"], "path": ["api", "contributors", ""]}
+					}
+				},
+				{
+					"name": "02_List_Contributors_Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns paginated response', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/contributors/", "host": ["{{base_url}}"], "path": ["api", "contributors", ""]}
+					}
+				},
+				{
+					"name": "03_Add_Contributor_Author_201",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('contributor_id', jsonData.id);",
+									"pm.environment.set('contributor_id', jsonData.id);",
+									"console.log('Created contributor_id:', jsonData.id);",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Has id', () => pm.expect(jsonData).to.have.property('id'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user\": {{contributor_user_id}},\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/contributors/", "host": ["{{base_url}}"], "path": ["api", "contributors", ""]}
+					}
+				},
+				{
+					"name": "04_Add_Contributor_NonAuthor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{contributor_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"user\": {{other_user_id}},\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/contributors/", "host": ["{{base_url}}"], "path": ["api", "contributors", ""]}
+					}
+				},
+				{
+					"name": "05_Get_Contributor_ById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/contributors/{{contributor_id}}/", "host": ["{{base_url}}"], "path": ["api", "contributors", "{{contributor_id}}", ""]}
+					}
+				},
+				{
+					"name": "06_Delete_Contributor_NonAuthor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 Forbidden', () => pm.response.to.have.status(403));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{contributor_token}}"}],
+						"url": {"raw": "{{base_url}}/api/contributors/{{contributor_id}}/", "host": ["{{base_url}}"], "path": ["api", "contributors", "{{contributor_id}}", ""]}
+					}
+				},
+				{
+					"name": "07_Delete_Contributor_Author_204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/contributors/{{contributor_id}}/", "host": ["{{base_url}}"], "path": ["api", "contributors", "{{contributor_id}}", ""]}
+					}
+				}
+			]
+		},
+		{
+			"name": "05_Issue",
+			"item": [
+				{
+					"name": "00_Setup_Create_Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('project_id', jsonData.id);",
+									"pm.environment.set('project_id', jsonData.id);",
+									"console.log('Setup project_id:', jsonData.id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Project for Issue Tests\",\n    \"description\": \"Testing issue management\",\n    \"type\": \"back-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "01_List_Issues_NoAuth_401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "02_List_Issues_Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns paginated response', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "03_Create_Issue_BUG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('issue_id', jsonData.id);",
+									"pm.environment.set('issue_id', jsonData.id);",
+									"console.log('Created issue_id:', jsonData.id);",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Has id', () => pm.expect(jsonData).to.have.property('id'));",
+									"pm.test('Tag is BUG', () => pm.expect(jsonData.tag).to.eql('BUG'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Login Bug\",\n    \"description\": \"Users cannot login with special characters\",\n    \"priority\": \"HIGH\",\n    \"tag\": \"BUG\",\n    \"status\": \"To Do\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "04_Create_Issue_FEATURE",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Tag is FEATURE', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.tag).to.eql('FEATURE');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Dark Mode\",\n    \"description\": \"Add dark mode support\",\n    \"priority\": \"LOW\",\n    \"tag\": \"FEATURE\",\n    \"status\": \"To Do\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "05_Create_Issue_TASK",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Tag is TASK', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.tag).to.eql('TASK');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Update Documentation\",\n    \"description\": \"Update API docs\",\n    \"priority\": \"MEDIUM\",\n    \"tag\": \"TASK\",\n    \"status\": \"To Do\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "06_Get_Issue_ById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has correct id', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get('issue_id')));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				},
+				{
+					"name": "07_Update_Issue_Author_200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Status updated', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('In Progress');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Login Bug\",\n    \"description\": \"Users cannot login with special characters - investigating\",\n    \"priority\": \"HIGH\",\n    \"tag\": \"BUG\",\n    \"status\": \"In Progress\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				},
+				{
+					"name": "08_Update_Issue_Contributor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 or 404 (denied)', () => {",
+									"    pm.expect([403, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{contributor_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Should Fail\",\n    \"description\": \"Contributor cannot update other's issue\",\n    \"priority\": \"LOW\",\n    \"tag\": \"BUG\",\n    \"status\": \"To Do\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				},
+				{
+					"name": "09_Patch_Issue_Status_Finished",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Status is Finished', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.eql('Finished');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"Finished\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				},
+				{
+					"name": "10_Delete_Issue_Contributor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 or 404 (denied)', () => {",
+									"    pm.expect([403, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{contributor_token}}"}],
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				},
+				{
+					"name": "11_Delete_Issue_Author_204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/issues/{{issue_id}}/", "host": ["{{base_url}}"], "path": ["api", "issues", "{{issue_id}}", ""]}
+					}
+				}
+			]
+		},
+		{
+			"name": "06_Comment",
+			"item": [
+				{
+					"name": "00_Setup_Create_Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('project_id', jsonData.id);",
+									"pm.environment.set('project_id', jsonData.id);",
+									"console.log('Setup project_id:', jsonData.id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Project for Comment Tests\",\n    \"description\": \"Testing comment management\",\n    \"type\": \"back-end\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/projects/", "host": ["{{base_url}}"], "path": ["api", "projects", ""]}
+					}
+				},
+				{
+					"name": "01_Setup_Create_Issue",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('issue_id', jsonData.id);",
+									"pm.environment.set('issue_id', jsonData.id);",
+									"console.log('Setup issue_id:', jsonData.id);",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Issue for Comments\",\n    \"description\": \"An issue to test comments on\",\n    \"priority\": \"MEDIUM\",\n    \"tag\": \"TASK\",\n    \"status\": \"To Do\",\n    \"project\": {{project_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/issues/", "host": ["{{base_url}}"], "path": ["api", "issues", ""]}
+					}
+				},
+				{
+					"name": "02_List_Comments_NoAuth_401",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 401', () => pm.response.to.have.status(401));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {"raw": "{{base_url}}/api/comments/", "host": ["{{base_url}}"], "path": ["api", "comments", ""]}
+					}
+				},
+				{
+					"name": "03_List_Comments_Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns paginated response', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('results');",
+									"    pm.expect(jsonData.results).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/comments/", "host": ["{{base_url}}"], "path": ["api", "comments", ""]}
+					}
+				},
+				{
+					"name": "04_Create_Comment",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set('comment_id', jsonData.id);",
+									"pm.environment.set('comment_id', jsonData.id);",
+									"console.log('Created comment_id:', jsonData.id);",
+									"",
+									"pm.test('Status 201', () => pm.response.to.have.status(201));",
+									"pm.test('Has id', () => pm.expect(jsonData).to.have.property('id'));",
+									"pm.test('Description matches', () => pm.expect(jsonData.description).to.include('First comment'));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"First comment on this issue\",\n    \"issue\": {{issue_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/comments/", "host": ["{{base_url}}"], "path": ["api", "comments", ""]}
+					}
+				},
+				{
+					"name": "05_Get_Comment_ById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Has correct id', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(parseInt(pm.collectionVariables.get('comment_id')));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				},
+				{
+					"name": "06_Update_Comment_Author_200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Description updated', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.description).to.include('Updated comment');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Updated comment content\",\n    \"issue\": {{issue_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				},
+				{
+					"name": "07_Update_Comment_NonAuthor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 or 404 (denied)', () => {",
+									"    pm.expect([403, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{contributor_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Should fail - not my comment\",\n    \"issue\": {{issue_id}}\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				},
+				{
+					"name": "08_Patch_Comment_Author_200",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 200', () => pm.response.to.have.status(200));",
+									"pm.test('Description patched', () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.description).to.eql('Patched comment');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{access_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": \"Patched comment\"\n}"
+						},
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				},
+				{
+					"name": "09_Delete_Comment_NonAuthor_403",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 403 or 404 (denied)', () => {",
+									"    pm.expect([403, 404]).to.include(pm.response.code);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{contributor_token}}"}],
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				},
+				{
+					"name": "10_Delete_Comment_Author_204",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{access_token}}"}],
+						"url": {"raw": "{{base_url}}/api/comments/{{comment_id}}/", "host": ["{{base_url}}"], "path": ["api", "comments", "{{comment_id}}", ""]}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://localhost:8000"},
+		{"key": "access_token", "value": ""},
+		{"key": "refresh_token", "value": ""},
+		{"key": "contributor_token", "value": "REPLACE_WITH_CONTRIBUTOR_JWT"},
+		{"key": "current_user_id", "value": "4"},
+		{"key": "contributor_user_id", "value": "2"},
+		{"key": "other_user_id", "value": "3"},
+		{"key": "project_id", "value": ""},
+		{"key": "contributor_id", "value": ""},
+		{"key": "issue_id", "value": ""},
+		{"key": "comment_id", "value": ""}
+	]
+}

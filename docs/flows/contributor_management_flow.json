@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "SoftDesk Contributor Management Flow",
+    "description": "Test adding/removing contributors - only project author can manage",
+    "schema": "https://schema.postman.io/collection/draft-07/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Add Contributor (Project Author)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{project_author_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {{user_id_to_add}},\n  \"project\": {{project_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/contributors/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contributors", ""]
+        }
+      }
+    },
+    {
+      "name": "2. List Contributors",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/contributors/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contributors", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Add Contributor (Non-Author - Expect 403)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{contributor_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user\": {{another_user_id}},\n  \"project\": {{project_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/contributors/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contributors", ""]
+        }
+      }
+    },
+    {
+      "name": "4. Remove Contributor (Project Author)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{project_author_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/contributors/{{contributor_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contributors", "{{contributor_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "5. Remove Contributor (Non-Author - Expect 403)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{contributor_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/contributors/{{contributor_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "contributors", "{{contributor_id}}", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1MjE0MjE5LCJpYXQiOjE3NjUyMTA2MTksImp0aSI6IjBlYWY2ZGFhYzU4NDQxY2M5ZTFjN2NmMGI0OGQ1MDJlIiwidXNlcl9pZCI6IjQifQ.U6LZ5n-jMCxpNvJ2up9SvIPLnDyJ5hI0M_5PS5_Xe6E"
+    },
+    {
+      "key": "project_author_token",
+      "value": "PLACEHOLDER_PROJECT_AUTHOR_TOKEN"
+    },
+    {
+      "key": "contributor_token",
+      "value": "PLACEHOLDER_CONTRIBUTOR_TOKEN"
+    },
+    {
+      "key": "project_id",
+      "value": "1"
+    },
+    {
+      "key": "user_id_to_add",
+      "value": "2"
+    },
+    {
+      "key": "another_user_id",
+      "value": "3"
+    },
+    {
+      "key": "contributor_id",
+      "value": "1"
+    }
+  ]
+}

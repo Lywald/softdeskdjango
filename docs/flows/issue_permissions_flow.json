@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "SoftDesk Issue Permissions Flow",
+    "description": "Test Issue CRUD with author/contributor permission matrix",
+    "schema": "https://schema.postman.io/collection/draft-07/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Create Issue (Contributor can POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{contributor_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Bug Report\",\n  \"description\": \"Found a bug in the login flow\",\n  \"priority\": \"HIGH\",\n  \"tag\": \"BUG\",\n  \"status\": \"To Do\",\n  \"project\": {{project_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/issues/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", ""]
+        }
+      }
+    },
+    {
+      "name": "2. List Issues in Project",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/issues/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", ""]
+        }
+      }
+    },
+    {
+      "name": "3. Read Single Issue",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{access_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/issues/{{issue_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", "{{issue_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "4. Update Own Issue (Author - OK)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{issue_author_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Bug Report\",\n  \"description\": \"Updated description\",\n  \"priority\": \"MEDIUM\",\n  \"tag\": \"BUG\",\n  \"status\": \"In Progress\",\n  \"project\": {{project_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/issues/{{issue_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", "{{issue_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "5. Update Other's Issue (Contributor - Expect 403)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{other_contributor_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Should Fail\",\n  \"description\": \"Non-author cannot update\",\n  \"priority\": \"LOW\",\n  \"tag\": \"BUG\",\n  \"status\": \"To Do\",\n  \"project\": {{project_id}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/issues/{{issue_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", "{{issue_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "6. Read Issue (Non-Contributor - Expect 403)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{non_member_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/issues/{{issue_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", "{{issue_id}}", ""]
+        }
+      }
+    },
+    {
+      "name": "7. Delete Issue (Author Only)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{issue_author_token}}"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/issues/{{issue_id}}/",
+          "host": ["{{base_url}}"],
+          "path": ["api", "issues", "{{issue_id}}", ""]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000"
+    },
+    {
+      "key": "access_token",
+      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1MjE0MjE5LCJpYXQiOjE3NjUyMTA2MTksImp0aSI6IjBlYWY2ZGFhYzU4NDQxY2M5ZTFjN2NmMGI0OGQ1MDJlIiwidXNlcl9pZCI6IjQifQ.U6LZ5n-jMCxpNvJ2up9SvIPLnDyJ5hI0M_5PS5_Xe6E"
+    },
+    {
+      "key": "contributor_token",
+      "value": "PLACEHOLDER_CONTRIBUTOR_TOKEN"
+    },
+    {
+      "key": "issue_author_token",
+      "value": "PLACEHOLDER_ISSUE_AUTHOR_TOKEN"
+    },
+    {
+      "key": "other_contributor_token",
+      "value": "PLACEHOLDER_OTHER_CONTRIBUTOR_TOKEN"
+    },
+    {
+      "key": "non_member_token",
+      "value": "PLACEHOLDER_NON_MEMBER_TOKEN"
+    },
+    {
+      "key": "project_id",
+      "value": "1"
+    },
+    {
+      "key": "issue_id",
+      "value": "1"
+    }
+  ]
+}

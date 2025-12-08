@@ -37,38 +37,42 @@ from rest_framework import permissions
 
 
 class ContributorPermission(permissions.BasePermission):
+    """
+    Permissions for managing project contributors.
+    
+    - Project author: Can POST (add) and DELETE contributors
+    - Project members: Can GET (read) other contributors
+    - Others: No access (403)
+    """
+    
     def has_permission(self, request, view):
         # Staff can do anything
         if request.user.is_staff:
             return True
         
-        # We can read (we added IsAuthenticated in the view)
+        # Others can read (we added IsAuthenticated in the view)
         if request.method in permissions.SAFE_METHODS:
             return None
         
         return False
     
     def has_object_permission(self, request, view, obj):
-        # per-item permission: 
-        # -- project author can create/delete contributor
-        # -- contributors can read their project's other contributors' profile
-        # -- others can do nothing
+        """
+        Check if user can access a specific contributor instance.
+        
+        Args:
+            obj: Contributor instance
+            
+        Returns:
+            True if user is project author (all methods) or project member (GET only)
+            False otherwise
+        """
+        # Project author can do anything
         if request.user == obj.project.author:
             return True
         
-        proj = None
-
-        if hasattr(obj, 'project'):
-            proj = obj.project
-        elif hasattr(obj, 'issue'):
-            proj = obj.issue.project
-        else:
-            return False
-
-        is_proj_member = None
-
-        if proj:
-            is_proj_member = request.user == proj.author or proj.contributors.filter(user=request.user).exists()
+        # Project members can read only
+        is_proj_member = obj.project.contributors.filter(user=request.user).exists()
         
         if is_proj_member and request.method in permissions.SAFE_METHODS:
             return True
@@ -77,12 +81,26 @@ class ContributorPermission(permissions.BasePermission):
         
     
 class ProjectPermission(permissions.BasePermission):
+    """
+    Permissions for managing projects.
+    
+    - Project author: Can GET, POST (create), PUT (update), and DELETE
+    - Project contributors: Can GET (read) only
+    - Others: Cannot access (filtered by get_queryset())
+    """
+    
     def has_permission(self, request, view):
+        """
+        Check if user can access the list/create endpoint.
+        
+        Staff can do anything. GET requests deferred to IsAuthenticated.
+        POST requests allowed for authenticated users (detail check in has_object_permission).
+        """
         # Staff can do anything
         if request.user.is_staff:
             return True
         
-        # We can read (we added IsAuthenticated permission in the view)
+        # Others can read (we added IsAuthenticated permission in the view)
         if request.method in permissions.SAFE_METHODS:
             return None
         
@@ -92,10 +110,21 @@ class ProjectPermission(permissions.BasePermission):
         return False
     
     def has_object_permission(self, request, view, obj):
-        # Project author can do anything, others can only read or create
+        """
+        Check if user can access a specific project instance.
+        
+        Args:
+            obj: Project instance
+            
+        Returns:
+            True if user is project author (all methods) or contributor (GET only)
+            False for all other cases
+        """
+        # Project author can do anything
         if request.user == obj.author:
             return True
         
+        # Contributors can only read
         if request.method == "PUT" or request.method == "DELETE":
             return False
         else:
@@ -103,24 +132,47 @@ class ProjectPermission(permissions.BasePermission):
             
 
 class CommentPermission(permissions.BasePermission):
+    """
+    Permissions for managing comments on issues.
+    
+    - Comment author: Can GET, POST (create), PUT (update), and DELETE their comments
+    - Project members (author/contributors): Can GET (read) only
+    - Non-members: Cannot access
+    """
+    
     def has_permission(self, request, view):
+        """
+        Check if user can access the list/create endpoint.
+        
+        Staff can do anything. GET requests deferred to IsAuthenticated.
+        POST requests allowed for authenticated users (detail check in has_object_permission).
+        """
         # Staff can do anything
         if request.user.is_staff:
             return True
         
-        # We can read (we added IsAuthenticated in the view)
+        # Others can read (we added IsAuthenticated in the view)
         if request.method in permissions.SAFE_METHODS:
             return None
         
-        return False
+        return True # Filtered further in has_object_permission
     
     def has_object_permission(self, request, view, obj):
-        # comment author can do everything
-        # comment's project members can read
-        # others can not read nor write
+        """
+        Check if user can access a specific comment instance.
+        
+        Args:
+            obj: Comment instance
+            
+        Returns:
+            True if user is comment author (all methods) or project member (GET only)
+            False otherwise
+        """
+        # Comment author can do everything
         if request.user == obj.author:
             return True
         
+        # Project members can read only
         is_author = obj.issue.project.author == request.user
         is_contributor = obj.issue.project.contributors.filter(user=request.user).exists()
         if is_author or is_contributor:
@@ -130,12 +182,26 @@ class CommentPermission(permissions.BasePermission):
     
 
 class IssuePermission(permissions.BasePermission):
+    """
+    Permissions for managing issues in projects.
+    
+    - Issue author: Can GET, POST (create), PUT (update), and DELETE their issues
+    - Project members (author/contributors): Can GET (read) and POST (create) only
+    - Non-members: Cannot access
+    """
+    
     def has_permission(self, request, view):
+        """
+        Check if user can access the list/create endpoint.
+        
+        Staff can do anything. GET requests deferred to IsAuthenticated.
+        POST/PUT/DELETE requests allowed for authenticated users (detail check in has_object_permission).
+        """
         # Staff can do anything
         if request.user.is_staff:
             return True
         
-        # We can read (we added IsAuthenticated in the view)
+        # Others can read (we added IsAuthenticated in the view)
         if request.method in permissions.SAFE_METHODS:
             return None
         
@@ -147,9 +213,17 @@ class IssuePermission(permissions.BasePermission):
         return True
     
     def has_object_permission(self, request, view, obj):
-        # issue author can do everything
-        # issue's project members can read 
-        # others can not read nor write
+        """
+        Check if user can access a specific issue instance.
+        
+        Args:
+            obj: Issue instance
+            
+        Returns:
+            True if user is issue author (all methods) or project member (GET/POST only)
+            False otherwise
+        """
+        # Issue author can do everything
         if request.user == obj.author:
             return True
         
